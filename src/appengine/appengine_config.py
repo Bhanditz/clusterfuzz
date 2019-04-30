@@ -115,5 +115,11 @@ if IS_RUNNING_IN_PRODUCTION or IS_RUNNING_IN_DEV_APPSERVER:
   import requests_toolbelt.adapters.appengine
   requests_toolbelt.adapters.appengine.monkeypatch()
 
+  # Decrease Google Cloud Storage chunk size, otherwise uploads larger >10MB
+  # fails because of URLFetch limits.
+  # See https://github.com/googleapis/google-cloud-python/issues/7834.
+  from google.cloud.storage import blob
+  blob._DEFAULT_CHUNKSIZE = 10 * 1024 * 1024  # 10MiB. pylint: disable=protected-access
+
   import firebase_admin
   firebase_admin.initialize_app()
